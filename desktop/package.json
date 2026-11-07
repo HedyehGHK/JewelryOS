@@ -1,0 +1,39 @@
+{
+  "name": "jewelryos-desktop",
+  "productName": "JewelryOS",
+  "version": "1.0.0",
+  "description": "JewelryOS — سامانه موجودی و فاکتور طلافروشی",
+  "author": "JewelryOS",
+  "main": "main.js",
+  "private": true,
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --win nsis --x64"
+  },
+  "devDependencies": {
+    "electron": "44.8.0",
+    "electron-builder": "26.17.0"
+  },
+  "build": {
+    "appId": "com.jewelryos.desktop",
+    "productName": "JewelryOS",
+    "directories": { "output": "dist", "buildResources": "build" },
+    "files": ["main.js", "loading.html", "package.json", "build/icon.png"],
+    "extraResources": [
+      { "from": "backend", "to": "backend", "filter": ["**/*"] }
+    ],
+    "win": {
+      "target": [{ "target": "nsis", "arch": ["x64"] }],
+      "icon": "build/icon.png"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "JewelryOS",
+      "deleteAppDataOnUninstall": false
+    }
+  }
+}

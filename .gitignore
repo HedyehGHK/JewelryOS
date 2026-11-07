@@ -1,0 +1,13 @@
+bin/
+obj/
+node_modules/
+.angular/
+*.user
+.vs/
+backend/JewelryOS.Api/data/
+*.db
+*.db-shm
+*.db-wal
+# real store files must never be committed
+private-data/
+backend/JewelryOS.Api/design-time.db
