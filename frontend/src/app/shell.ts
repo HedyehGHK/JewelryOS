@@ -17,7 +17,10 @@ interface NavItem { path: string; label: string; icon: string; owner?: boolean; 
   template: `
   <mat-sidenav-container class="shell">
     <mat-sidenav [mode]="mobile() ? 'over' : 'side'" [opened]="!mobile() || menuOpen()" (closedStart)="menuOpen.set(false)" position="start" class="nav no-print">
-      <div class="brand"><span class="material-symbols-outlined">diamond</span> <b>JewelryOS</b></div>
+      <div class="brand">
+        <img src="/store-logo.png" alt="نشان جواهری قسمتی">
+        <b>جواهری قسمتی</b>
+      </div>
       <nav>
         @for (n of visibleNav(); track n.path) {
           <a [routerLink]="n.path" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: !!n.exact }" (click)="menuOpen.set(false)">
@@ -53,7 +56,9 @@ interface NavItem { path: string; label: string; icon: string; owner?: boolean; 
   styles: `
     .shell { height: 100vh; background: var(--bg); }
     .nav { width: 232px; background: #2b2118; color: #f3e7cf; border: 0; }
-    .brand { display: flex; align-items: center; gap: 8px; padding: 20px 20px 16px; font-size: 19px; color: #f0c766; }
+    .brand { display: flex; align-items: center; gap: 10px; padding: 12px 14px 14px; color: #f0c766; }
+    .brand img { width: 48px; height: 48px; flex: 0 0 48px; object-fit: cover; border-radius: 12px; }
+    .brand b { font-size: 16px; font-weight: 800; white-space: nowrap; }
     nav { display: flex; flex-direction: column; padding: 4px 10px; gap: 2px; }
     nav a { display: flex; align-items: center; gap: 12px; padding: 11px 14px; border-radius: 10px; color: #eadcc2; text-decoration: none; font-size: 15px; }
     nav a:hover { background: rgba(255,255,255,.06); }
