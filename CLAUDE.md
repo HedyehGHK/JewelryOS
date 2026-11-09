@@ -45,6 +45,7 @@ installer bundles whatever is in `wwwroot`. Bump `version` in `desktop/package.j
 - After changing `Domain/Entities.cs` or `Data/AppDb.cs`, create a migration (`db-migration.bat`). Never edit or delete a migration that has shipped to the store.
 - Pricing rules (profit %, VAT %, VAT base, rounding) live in `StoreSettings` and the Settings page — do not hard-code them. They are not yet confirmed by the store owner (`docs/pricing.md`).
 - No real customer or store data in the repo; sample data must stay synthetic.
+- The dev database lives in `backend/JewelryOS.Api/storage/` (not `data/`: Windows is case-insensitive, so `data/` would be the `Data/` source folder). Never add a bare `data/` pattern to `.gitignore`.
 
 ## UI conventions
 

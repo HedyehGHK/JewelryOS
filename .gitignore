@@ -4,10 +4,11 @@ node_modules/
 .angular/
 *.user
 .vs/
-backend/JewelryOS.Api/data/
+# Database files (the "Data" source-code folder must NOT be ignored —
+# Windows git ignores case, so never add a bare "data/" pattern here)
 *.db
 *.db-shm
 *.db-wal
 # real store files must never be committed
 private-data/
-backend/JewelryOS.Api/design-time.db
+backend/JewelryOS.Api/storage/

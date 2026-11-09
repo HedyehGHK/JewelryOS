@@ -13,7 +13,7 @@ var builder = WebApplication.CreateBuilder(args);
 var config = builder.Configuration;
 
 // ---------- Database (SQLite, one file) ----------
-var connection = config.GetConnectionString("Default") ?? "Data Source=data/jewelryos.db";
+var connection = config.GetConnectionString("Default") ?? "Data Source=storage/jewelryos.db"; // not "data/": on Windows that is the same folder as the Data/ source folder
 // Resolve a relative database path against the app folder (not the current shell folder).
 var csb = new Microsoft.Data.Sqlite.SqliteConnectionStringBuilder(connection);
 csb.DataSource = Path.GetFullPath(csb.DataSource, builder.Environment.ContentRootPath);
