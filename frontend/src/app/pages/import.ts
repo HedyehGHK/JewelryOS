@@ -92,7 +92,7 @@ import { FA_PIPES } from '../core/fa';
         </div>
         <div class="table-wrap preview">
           <table class="t">
-            <thead><tr><th>ردیف</th><th>نتیجه</th><th>کد</th><th>نام</th><th>عیار</th><th>وزن</th><th>اجرت</th><th>نوع</th><th>موجودی</th><th>خطاها</th></tr></thead>
+            <thead><tr><th>ردیف</th><th>نتیجه</th><th>کد</th><th>نام</th><th>عیار</th><th>وزن</th><th>اجرت</th><th>موجودی</th><th>خطاها</th></tr></thead>
             <tbody>
               @for (r of visibleRows(); track r.rowNumber) {
                 <tr [class.err]="r.action === 'Error'">
@@ -103,11 +103,10 @@ import { FA_PIPES } from '../core/fa';
                   <td class="num">{{ r.parsed ? (r.parsed.purity | faNum) : cell(r.cells, 'Purity') }}</td>
                   <td class="num">{{ r.parsed ? (r.parsed.weightGrams | faNum) : cell(r.cells, 'Weight') }}</td>
                   <td class="num">{{ r.parsed ? (r.parsed.wagePercent | faNum) : cell(r.cells, 'WagePercent') }}</td>
-                  <td>{{ r.parsed ? (r.parsed.trackingMode | label) : cell(r.cells, 'Tracking') }}</td>
                   <td class="num">{{ r.parsed ? (r.parsed.stock | faNum) : cell(r.cells, 'Stock') }}</td>
                   <td class="errs">{{ r.errors }}</td>
                 </tr>
-              } @empty { <tr><td colspan="10" class="empty">ردیفی برای نمایش نیست.</td></tr> }
+              } @empty { <tr><td colspan="9" class="empty">ردیفی برای نمایش نیست.</td></tr> }
             </tbody>
           </table>
         </div>

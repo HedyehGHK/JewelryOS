@@ -40,7 +40,6 @@ import { ProductDialog } from './product-dialog';
             <dt>وزن</dt><dd class="num">{{ p.weightGrams | faNum }} گرم</dd>
             <dt>اجرت</dt><dd class="num">{{ p.wagePercent | faNum }}٪</dd>
             <dt>سنگ و اضافات</dt><dd class="num">{{ p.stoneValue | money }}</dd>
-            <dt>نوع</dt><dd>{{ p.trackingMode | label }}</dd>
             <dt>وضعیت</dt><dd>{{ p.status | label }}</dd>
             <dt>توضیحات</dt><dd>{{ p.notes || '—' }}</dd>
           </dl>

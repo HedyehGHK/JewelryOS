@@ -10,21 +10,21 @@ public static class SampleData
 {
     public static readonly ParsedProduct[] Products =
     [
-        new("R-1001", "انگشتر زنانه طرح برگ", "انگشتر", 750, 3.250m, 18m, 0m, TrackingMode.Unique, 1, null),
-        new("R-1002", "انگشتر نگین‌دار سولیتر", "انگشتر", 750, 2.870m, 22m, 4_500_000m, TrackingMode.Unique, 1, "نگین زیرکونیا"),
-        new("R-1003", "حلقه ساده رینگی", "انگشتر", 750, 4.100m, 12m, 0m, TrackingMode.Unique, 1, null),
-        new("N-2001", "گردنبند زنجیر کارتیه ۴۵ سانت", "گردنبند", 750, 6.420m, 15m, 0m, TrackingMode.Unique, 1, null),
-        new("N-2002", "گردنبند پلاک اسم", "گردنبند", 750, 2.150m, 30m, 0m, TrackingMode.Unique, 1, "سفارشی"),
-        new("N-2003", "آویز قلب ساده", "گردنبند", 750, 1.050m, 20m, 0m, TrackingMode.Quantity, 6, null),
-        new("B-3001", "دستبند زنجیری ونیزی", "دستبند", 750, 5.380m, 14m, 0m, TrackingMode.Unique, 1, null),
-        new("B-3002", "النگو ساده تراش‌خورده", "النگو", 750, 9.760m, 9m, 0m, TrackingMode.Unique, 1, null),
-        new("B-3003", "دستبند بچگانه مهره‌ای", "دستبند", 750, 1.640m, 25m, 0m, TrackingMode.Quantity, 4, null),
-        new("E-4001", "گوشواره میخی ستاره", "گوشواره", 750, 0.920m, 28m, 0m, TrackingMode.Quantity, 10, null),
-        new("E-4002", "گوشواره حلقه‌ای متوسط", "گوشواره", 750, 2.310m, 18m, 0m, TrackingMode.Unique, 1, null),
-        new("E-4003", "گوشواره آویز مروارید", "گوشواره", 750, 1.780m, 24m, 2_800_000m, TrackingMode.Unique, 1, "مروارید پرورشی"),
-        new("S-5001", "سکه پارسیان ۱ گرمی", "سکه پارسیان", 750, 1.000m, 3m, 0m, TrackingMode.Quantity, 20, null),
-        new("S-5002", "سکه پارسیان ۵۰۰ سوتی", "سکه پارسیان", 750, 0.500m, 4m, 0m, TrackingMode.Quantity, 15, null),
-        new("W-6001", "سرویس کامل طرح گل", "سرویس", 750, 18.450m, 16m, 0m, TrackingMode.Unique, 1, "گردنبند، دستبند، گوشواره"),
+        new("R-1001", "انگشتر زنانه طرح برگ", "انگشتر", 750, 3.250m, 18m, 0m, 1, null),
+        new("R-1002", "انگشتر نگین‌دار سولیتر", "انگشتر", 750, 2.870m, 22m, 4_500_000m, 1, "نگین زیرکونیا"),
+        new("R-1003", "حلقه ساده رینگی", "انگشتر", 750, 4.100m, 12m, 0m, 1, null),
+        new("N-2001", "گردنبند زنجیر کارتیه ۴۵ سانت", "گردنبند", 750, 6.420m, 15m, 0m, 1, null),
+        new("N-2002", "گردنبند پلاک اسم", "گردنبند", 750, 2.150m, 30m, 0m, 1, "سفارشی"),
+        new("N-2003", "آویز قلب ساده", "گردنبند", 750, 1.050m, 20m, 0m, 6, null),
+        new("B-3001", "دستبند زنجیری ونیزی", "دستبند", 750, 5.380m, 14m, 0m, 1, null),
+        new("B-3002", "النگو ساده تراش‌خورده", "النگو", 750, 9.760m, 9m, 0m, 1, null),
+        new("B-3003", "دستبند بچگانه مهره‌ای", "دستبند", 750, 1.640m, 25m, 0m, 4, null),
+        new("E-4001", "گوشواره میخی ستاره", "گوشواره", 750, 0.920m, 28m, 0m, 10, null),
+        new("E-4002", "گوشواره حلقه‌ای متوسط", "گوشواره", 750, 2.310m, 18m, 0m, 1, null),
+        new("E-4003", "گوشواره آویز مروارید", "گوشواره", 750, 1.780m, 24m, 2_800_000m, 1, "مروارید پرورشی"),
+        new("S-5001", "سکه پارسیان ۱ گرمی", "سکه پارسیان", 750, 1.000m, 3m, 0m, 20, null),
+        new("S-5002", "سکه پارسیان ۵۰۰ سوتی", "سکه پارسیان", 750, 0.500m, 4m, 0m, 15, null),
+        new("W-6001", "سرویس کامل طرح گل", "سرویس", 750, 18.450m, 16m, 0m, 1, "گردنبند، دستبند، گوشواره"),
     ];
 
     public const decimal DemoPricePerGram18k = 9_850_000m; // synthetic rate in Toman
@@ -74,7 +74,7 @@ public static class Seed
             var products = SampleData.Products.Select(s => new Product
             {
                 Sku = s.Sku, Name = s.Name, Category = s.Category, Purity = s.Purity, WeightGrams = s.WeightGrams,
-                WagePercent = s.WagePercent, StoneValue = s.StoneValue, TrackingMode = s.TrackingMode, Notes = s.Notes,
+                WagePercent = s.WagePercent, StoneValue = s.StoneValue, Notes = s.Notes,
                 CreatedAt = now, UpdatedAt = now,
             }).ToList();
             db.Products.AddRange(products);

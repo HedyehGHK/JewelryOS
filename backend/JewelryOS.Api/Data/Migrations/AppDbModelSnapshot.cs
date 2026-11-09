@@ -439,11 +439,6 @@ namespace JewelryOS.Api.Data.Migrations
                         .HasPrecision(18, 3)
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("TrackingMode")
-                        .IsRequired()
-                        .HasMaxLength(32)
-                        .HasColumnType("TEXT");
-
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("TEXT");
 

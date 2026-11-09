@@ -80,7 +80,7 @@ import { FA_PIPES } from '../core/fa';
             <a class="low" [routerLink]="['/products', p.id]"><span class="num">{{ p.sku }}</span> {{ p.name }}
               <span class="badge" [class.bad]="p.stockQuantity === 0" [class.warn]="p.stockQuantity > 0">{{ p.stockQuantity | faNum }}</span></a>
           } @empty { <div class="empty">مورد هشداری نیست.</div> }
-          <p class="muted small">فقط کالاهای «تعدادی» با موجودی کمتر یا مساوی حد تعیین‌شده در تنظیمات.</p>
+          <p class="muted small">کالاهای فعال با موجودی کمتر یا مساوی حد تعیین‌شده در تنظیمات (پیش‌فرض ۰ = فقط کالاهای تمام‌شده).</p>
         </div>
       </div>
     }

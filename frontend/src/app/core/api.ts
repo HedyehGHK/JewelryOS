@@ -5,7 +5,6 @@ import { catchError, throwError } from 'rxjs';
 
 // ---------- Types (mirror the ASP.NET Core API) ----------
 export type Role = 'Owner' | 'Seller';
-export type TrackingMode = 'Unique' | 'Quantity';
 export type ProductStatus = 'Active' | 'Archived';
 export type InvoiceStatus = 'Issued' | 'Voided' | 'Returned';
 export type TaxBase = 'WageAndProfit' | 'WholePrice';
@@ -14,7 +13,7 @@ export interface Me { id: number; username: string; displayName: string; role: R
 
 export interface Product {
   id: number; sku: string; name: string; category: string; purity: number; weightGrams: number;
-  wagePercent: number; stoneValue: number; trackingMode: TrackingMode; stockQuantity: number;
+  wagePercent: number; stoneValue: number; stockQuantity: number;
   status: ProductStatus; notes: string | null; createdAt: string; updatedAt: string;
 }
 
@@ -64,7 +63,7 @@ export interface ImportPreview {
   uploadedAt: string; committedAt: string | null; headers: string[]; mapping: Record<string, number>;
   rows: { rowNumber: number; sku: string | null; action: 'Create' | 'Update' | 'Skip' | 'Error'; errors: string | null; cells: string[];
           parsed: { sku: string; name: string; category: string; purity: number; weightGrams: number; wagePercent: number;
-                    stoneValue: number; trackingMode: TrackingMode; stock: number; notes: string | null } | null }[];
+                    stoneValue: number; stock: number; notes: string | null } | null }[];
 }
 
 export interface Dashboard {

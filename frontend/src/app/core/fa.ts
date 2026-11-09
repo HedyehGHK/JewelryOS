@@ -46,7 +46,7 @@ export class FaDatePipe implements PipeTransform {
 
 export const statusLabel: Record<string, string> = {
   Issued: 'صادر شده', Voided: 'باطل شده', Returned: 'مرجوع شده',
-  Owner: 'مدیر', Seller: 'فروشنده', Unique: 'تکی', Quantity: 'تعدادی', Active: 'فعال', Archived: 'بایگانی',
+  Owner: 'مدیر', Seller: 'فروشنده', Active: 'فعال', Archived: 'بایگانی',
   Initial: 'موجودی اولیه', Import: 'ورود از اکسل', Adjustment: 'اصلاح دستی', Sale: 'فروش', Void: 'ابطال فاکتور', Return: 'مرجوعی',
   Create: 'جدید', Update: 'به‌روزرسانی', Skip: 'رد (تکراری)', Error: 'خطا',
   WageAndProfit: 'فقط روی اجرت و سود (و سنگ)', WholePrice: 'روی کل مبلغ',

@@ -54,7 +54,7 @@ import { ProductDialog } from './product-dialog';
       <table class="t">
         <thead><tr>
           <th>کد</th><th>نام</th><th class="hide-sm">دسته</th><th>عیار</th><th>وزن (گرم)</th><th class="hide-sm">اجرت ٪</th>
-          <th class="hide-sm">نوع</th><th>موجودی</th>
+          <th>موجودی</th>
         </tr></thead>
         <tbody>
           @for (p of items(); track p.id) {
@@ -65,14 +65,13 @@ import { ProductDialog } from './product-dialog';
               <td class="num">{{ p.purity | faNum }}</td>
               <td class="num">{{ p.weightGrams | faNum }}</td>
               <td class="num hide-sm">{{ p.wagePercent | faNum }}</td>
-              <td class="hide-sm">{{ p.trackingMode | label }}</td>
               <td>
                 @if (p.stockQuantity > 0) { <span class="badge ok">{{ p.stockQuantity | faNum }}</span> }
                 @else { <span class="badge bad">ناموجود</span> }
               </td>
             </tr>
           } @empty {
-            @if (!loading()) { <tr><td colspan="8" class="empty">کالایی پیدا نشد.</td></tr> }
+            @if (!loading()) { <tr><td colspan="7" class="empty">کالایی پیدا نشد.</td></tr> }
           }
         </tbody>
       </table>

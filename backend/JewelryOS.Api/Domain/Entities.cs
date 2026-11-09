@@ -17,9 +17,6 @@ public class User
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }
 
-/// <summary>Unique = one physical piece (stock 0 or 1). Quantity = several identical pieces under one SKU.</summary>
-public enum TrackingMode { Unique, Quantity }
-
 public enum ProductStatus { Active, Archived }
 
 public class Product
@@ -35,8 +32,7 @@ public class Product
     public decimal WagePercent { get; set; }
     /// <summary>Fixed extra value for stones/attachments (سنگ و اضافات), per piece.</summary>
     public decimal StoneValue { get; set; }
-    public TrackingMode TrackingMode { get; set; } = TrackingMode.Unique;
-    /// <summary>Changed only through InventoryMovement-producing operations.</summary>
+    /// <summary>Number of pieces in stock (never negative). Changed only through InventoryMovement-producing operations.</summary>
     public int StockQuantity { get; set; }
     public ProductStatus Status { get; set; } = ProductStatus.Active;
     public string? Notes { get; set; }
@@ -95,7 +91,8 @@ public class StoreSettings
     public decimal RoundingUnit { get; set; } = 1000m;
     public string CurrencyLabel { get; set; } = "تومان";
     public string? InvoiceFooter { get; set; }
-    public int LowStockThreshold { get; set; } = 1;
+    /// <summary>Active products with stock at or below this are listed on the dashboard. 0 = only sold-out products.</summary>
+    public int LowStockThreshold { get; set; } = 0;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 }
 

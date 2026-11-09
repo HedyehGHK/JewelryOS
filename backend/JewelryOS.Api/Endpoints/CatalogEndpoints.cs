@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 namespace JewelryOS.Api.Endpoints;
 
 public record ProductRequest(string Sku, string Name, string? Category, int Purity, decimal WeightGrams, decimal WagePercent,
-    decimal StoneValue, TrackingMode TrackingMode, string? Notes, int? InitialStock);
+    decimal StoneValue, string? Notes, int? InitialStock);
 public record AdjustStockRequest(int Change, string Reason);
 public record RateRequest(decimal PricePerGram18k, string? Source);
 public record SettingsRequest(string StoreName, string? Address, string? Phone, decimal ProfitPercent, decimal TaxPercent,
@@ -58,8 +58,8 @@ public static class CatalogEndpoints
             var p = new Product();
             Apply(p, req);
             if (await db.Products.AnyAsync(x => x.Sku == p.Sku)) throw new AppException("کالایی با این کد قبلاً ثبت شده است.", 409);
-            var initial = req.InitialStock ?? (req.TrackingMode == TrackingMode.Unique ? 1 : 0);
-            if (initial < 0 || (p.TrackingMode == TrackingMode.Unique && initial > 1)) throw new AppException("موجودی اولیه نامعتبر است.");
+            var initial = req.InitialStock ?? 1;
+            if (initial < 0) throw new AppException("موجودی اولیه نمی‌تواند منفی باشد.");
 
             await using var tx = await db.Database.BeginTransactionAsync();
             db.Products.Add(p);
@@ -79,8 +79,6 @@ public static class CatalogEndpoints
             Apply(p, req);
             if (p.Sku != oldSku && await db.Products.AnyAsync(x => x.Sku == p.Sku && x.Id != id))
                 throw new AppException("کالایی با این کد قبلاً ثبت شده است.", 409);
-            if (p.TrackingMode == TrackingMode.Unique && p.StockQuantity > 1)
-                throw new AppException("این کالا بیش از ۱ موجودی دارد و نمی‌تواند «تکی» باشد.");
             p.UpdatedAt = DateTime.UtcNow;
             Audit.Log(db, user.Actor(), "product.update", "Product", p.Id, $"{before} ← {Describe(p)}");
             await db.SaveChangesAsync();
@@ -177,9 +175,9 @@ public static class CatalogEndpoints
         if (r.StoneValue < 0) throw new AppException("ارزش سنگ نمی‌تواند منفی باشد.");
         p.Sku = sku; p.Name = r.Name.Trim(); p.Category = (r.Category ?? "").Trim(); p.Purity = r.Purity;
         p.WeightGrams = Math.Round(r.WeightGrams, 3); p.WagePercent = r.WagePercent; p.StoneValue = Math.Round(r.StoneValue, 0);
-        p.TrackingMode = r.TrackingMode; p.Notes = string.IsNullOrWhiteSpace(r.Notes) ? null : r.Notes.Trim();
+        p.Notes = string.IsNullOrWhiteSpace(r.Notes) ? null : r.Notes.Trim();
     }
 
     private static string Describe(Product p) =>
-        $"{p.Sku}|{p.Name}|{p.Category}|عیار {p.Purity}|{p.WeightGrams:0.###}g|اجرت {p.WagePercent}٪|سنگ {p.StoneValue:0}|{p.TrackingMode}";
+        $"{p.Sku}|{p.Name}|{p.Category}|عیار {p.Purity}|{p.WeightGrams:0.###}g|اجرت {p.WagePercent}٪|سنگ {p.StoneValue:0}";
 }

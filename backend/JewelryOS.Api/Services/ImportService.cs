@@ -7,12 +7,28 @@ using Microsoft.EntityFrameworkCore;
 
 namespace JewelryOS.Api.Services;
 
-public enum ImportField { Sku, Name, Category, Purity, Weight, WagePercent, StoneValue, Tracking, Stock, Notes }
+public enum ImportField { Sku, Name, Category, Purity, Weight, WagePercent, StoneValue, Stock, Notes }
 
 public record ParsedProduct(string Sku, string Name, string Category, int Purity, decimal WeightGrams, decimal WagePercent,
-    decimal StoneValue, TrackingMode TrackingMode, int Stock, string? Notes);
+    decimal StoneValue, int Stock, string? Notes);
 
-public record ImportMeta(List<string> Headers, Dictionary<ImportField, int> Mapping);
+public record ImportMeta(List<string> Headers, Dictionary<ImportField, int> Mapping)
+{
+    private record Stored(List<string> Headers, Dictionary<string, int>? Mapping);
+
+    /// <summary>
+    /// Reads a saved mapping. Unknown field names (e.g. the removed "Tracking" column in batches
+    /// uploaded by older versions) are dropped instead of failing.
+    /// </summary>
+    public static ImportMeta Read(string json, JsonSerializerOptions options)
+    {
+        var s = JsonSerializer.Deserialize<Stored>(json, options)!;
+        var mapping = new Dictionary<ImportField, int>();
+        foreach (var (key, index) in s.Mapping ?? [])
+            if (Enum.TryParse<ImportField>(key, true, out var f) && Enum.IsDefined(f)) mapping[f] = index;
+        return new ImportMeta(s.Headers, mapping);
+    }
+}
 
 /// <summary>
 /// Excel onboarding: upload → parse + validate + preview (nothing changes) → owner commits.
@@ -28,8 +44,7 @@ public class ImportService(AppDb db)
     {
         [ImportField.Sku] = "کد کالا", [ImportField.Name] = "نام کالا", [ImportField.Category] = "دسته‌بندی",
         [ImportField.Purity] = "عیار", [ImportField.Weight] = "وزن (گرم)", [ImportField.WagePercent] = "درصد اجرت",
-        [ImportField.StoneValue] = "ارزش سنگ", [ImportField.Tracking] = "نوع (تکی/تعدادی)",
-        [ImportField.Stock] = "موجودی", [ImportField.Notes] = "توضیحات",
+        [ImportField.StoneValue] = "ارزش سنگ", [ImportField.Stock] = "موجودی", [ImportField.Notes] = "توضیحات",
     };
 
     private static readonly Dictionary<ImportField, string[]> Aliases = new()
@@ -41,7 +56,6 @@ public class ImportService(AppDb db)
         [ImportField.Weight] = ["وزن(گرم)", "وزن", "وزنگرم", "weight", "weightgrams", "grams"],
         [ImportField.WagePercent] = ["درصداجرت", "اجرت", "اجرت٪", "اجرت%", "wage", "wagepercent", "making"],
         [ImportField.StoneValue] = ["ارزشسنگ", "سنگ", "قیمتسنگ", "stone", "stonevalue"],
-        [ImportField.Tracking] = ["نوع(تکی/تعدادی)", "نوع", "تکی/تعدادی", "tracking", "mode"],
         [ImportField.Stock] = ["موجودی", "تعداد", "stock", "qty", "quantity"],
         [ImportField.Notes] = ["توضیحات", "یادداشت", "notes", "description"],
     };
@@ -94,7 +108,7 @@ public class ImportService(AppDb db)
     public async Task<ImportBatch> RevalidateAsync(int batchId, Dictionary<ImportField, int>? mapping, bool updateExisting, CancellationToken ct)
     {
         var batch = await LoadPreviewedAsync(batchId, ct);
-        var meta = JsonSerializer.Deserialize<ImportMeta>(batch.MappingJson, Json)!;
+        var meta = ImportMeta.Read(batch.MappingJson, Json);
         if (mapping != null)
         {
             if (mapping.Values.Any(i => i < -1 || i >= meta.Headers.Count)) throw new AppException("ستون انتخاب‌شده نامعتبر است.");
@@ -112,7 +126,7 @@ public class ImportService(AppDb db)
     {
         await using var tx = await db.Database.BeginTransactionAsync(ct);
         var batch = await LoadPreviewedAsync(batchId, ct);
-        var meta = JsonSerializer.Deserialize<ImportMeta>(batch.MappingJson, Json)!;
+        var meta = ImportMeta.Read(batch.MappingJson, Json);
         await ValidateAsync(batch, meta, updateExisting, ct); // re-check against current database state
 
         var skus = batch.Rows.Where(r => r.Action == ImportRowAction.Update).Select(r => r.Sku!).ToList();
@@ -132,7 +146,7 @@ public class ImportService(AppDb db)
                 var p = new Product
                 {
                     Sku = pp.Sku, Name = pp.Name, Category = pp.Category, Purity = pp.Purity, WeightGrams = pp.WeightGrams,
-                    WagePercent = pp.WagePercent, StoneValue = pp.StoneValue, TrackingMode = pp.TrackingMode,
+                    WagePercent = pp.WagePercent, StoneValue = pp.StoneValue,
                     StockQuantity = 0, Notes = pp.Notes, CreatedAt = now, UpdatedAt = now,
                 };
                 db.Products.Add(p);
@@ -146,11 +160,6 @@ public class ImportService(AppDb db)
                 p.WagePercent = pp.WagePercent; p.StoneValue = pp.StoneValue; p.Notes = pp.Notes; p.UpdatedAt = now;
                 p.Status = ProductStatus.Active;
                 var diff = pp.Stock - p.StockQuantity;
-                if (pp.TrackingMode != p.TrackingMode)
-                {
-                    // Switching to Unique with stock > 1 is rejected in validation.
-                    p.TrackingMode = pp.TrackingMode;
-                }
                 if (diff != 0) stockChanges.Add((p, diff));
                 updated++;
             }
@@ -203,8 +212,7 @@ public class ImportService(AppDb db)
             {
                 ws.Cell(r, 1).Value = s.Sku; ws.Cell(r, 2).Value = s.Name; ws.Cell(r, 3).Value = s.Category;
                 ws.Cell(r, 4).Value = (double)s.Purity; ws.Cell(r, 5).Value = (double)s.WeightGrams; ws.Cell(r, 6).Value = (double)s.WagePercent;
-                ws.Cell(r, 7).Value = (double)s.StoneValue; ws.Cell(r, 8).Value = s.TrackingMode == TrackingMode.Unique ? "تکی" : "تعدادی";
-                ws.Cell(r, 9).Value = (double)s.Stock; ws.Cell(r, 10).Value = s.Notes ?? "";
+                ws.Cell(r, 7).Value = (double)s.StoneValue; ws.Cell(r, 8).Value = (double)s.Stock; ws.Cell(r, 9).Value = s.Notes ?? "";
                 r++;
             }
         }
@@ -274,8 +282,9 @@ public class ImportService(AppDb db)
 
         var skus = parsed.Where(p => p.Result.Product != null).Select(p => p.Result.Product!.Sku).Distinct().ToList();
         var existing = await db.Products.AsNoTracking().Where(p => skus.Contains(p.Sku))
-            .Select(p => new { p.Sku, p.TrackingMode, p.StockQuantity })
-            .ToDictionaryAsync(p => p.Sku, StringComparer.OrdinalIgnoreCase, ct);
+            .Select(p => p.Sku)
+            .ToListAsync(ct);
+        var existingSkus = existing.ToHashSet(StringComparer.OrdinalIgnoreCase);
 
         var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         foreach (var (row, result) in parsed)
@@ -285,9 +294,6 @@ public class ImportService(AppDb db)
             row.Sku = pp?.Sku ?? result.RawSku;
 
             if (pp != null && !seen.Add(pp.Sku)) errors.Add("کد کالا در همین فایل تکراری است.");
-            if (pp != null && errors.Count == 0 && existing.TryGetValue(pp.Sku, out var ex) && updateExisting
-                && pp.TrackingMode == TrackingMode.Unique && ex.TrackingMode == TrackingMode.Quantity && pp.Stock > 1)
-                errors.Add("کالای تکی نمی‌تواند بیش از ۱ موجودی داشته باشد.");
 
             if (errors.Count > 0)
             {
@@ -299,7 +305,7 @@ public class ImportService(AppDb db)
             {
                 row.Errors = null;
                 row.ParsedJson = JsonSerializer.Serialize(pp, Json);
-                row.Action = existing.ContainsKey(pp!.Sku)
+                row.Action = existingSkus.Contains(pp!.Sku)
                     ? (updateExisting ? ImportRowAction.Update : ImportRowAction.Skip)
                     : ImportRowAction.Create;
             }
@@ -364,23 +370,16 @@ public class ImportService(AppDb db)
         if (stoneText != "" && !NumberText.TryDecimal(stoneText, out stone)) errors.Add($"ارزش سنگ «{stoneText}» عدد نیست.");
         else if (stone < 0) errors.Add("ارزش سنگ نمی‌تواند منفی باشد.");
 
-        var trackingText = NormHeader(Get(ImportField.Tracking));
-        TrackingMode tracking;
-        if (trackingText is "" or "تکی" or "unique" or "single") tracking = TrackingMode.Unique;
-        else if (trackingText is "تعدادی" or "quantity" or "qty" or "چندتایی") tracking = TrackingMode.Quantity;
-        else { tracking = TrackingMode.Unique; errors.Add($"نوع «{Get(ImportField.Tracking)}» باید «تکی» یا «تعدادی» باشد."); }
-
-        var stock = tracking == TrackingMode.Unique ? 1 : 0;
+        var stock = 1; // an empty cell means one piece
         var stockText = Get(ImportField.Stock);
         if (stockText != "" && !NumberText.TryInt(stockText, out stock)) errors.Add($"موجودی «{stockText}» عدد صحیح نیست.");
         else if (stock < 0) errors.Add("موجودی نمی‌تواند منفی باشد.");
-        else if (tracking == TrackingMode.Unique && stock > 1) errors.Add("کالای تکی نمی‌تواند بیش از ۱ موجودی داشته باشد.");
 
         var notes = Get(ImportField.Notes);
         if (notes.Length > 1000) notes = notes[..1000];
 
         var product = errors.Count == 0
-            ? new ParsedProduct(sku, name, category, purity, weight, wage, stone, tracking, stock, notes == "" ? null : notes)
+            ? new ParsedProduct(sku, name, category, purity, weight, wage, stone, stock, notes == "" ? null : notes)
             : null;
         return new ParseResult(product, errors, string.IsNullOrWhiteSpace(sku) ? null : sku);
     }

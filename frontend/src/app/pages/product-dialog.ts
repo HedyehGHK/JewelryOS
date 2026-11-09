@@ -7,7 +7,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { firstValueFrom } from 'rxjs';
-import { Api, Product, TrackingMode, errorMessage } from '../core/api';
+import { Api, Product, errorMessage } from '../core/api';
 import { parseNumber } from '../core/fa';
 
 @Component({
@@ -40,13 +40,6 @@ import { parseNumber } from '../core/fa';
       <mat-form-field><mat-label>وزن (گرم)</mat-label><input matInput [(ngModel)]="weight" inputmode="decimal" dir="ltr" required></mat-form-field>
       <mat-form-field><mat-label>اجرت (درصد از ارزش طلا)</mat-label><input matInput [(ngModel)]="wage" inputmode="decimal" dir="ltr"></mat-form-field>
       <mat-form-field><mat-label>ارزش سنگ و اضافات (هر عدد)</mat-label><input matInput [(ngModel)]="stone" inputmode="numeric" dir="ltr"></mat-form-field>
-      <mat-form-field>
-        <mat-label>نوع ردیابی</mat-label>
-        <mat-select [(ngModel)]="tracking">
-          <mat-option value="Unique">تکی (هر قطعه منحصربه‌فرد)</mat-option>
-          <mat-option value="Quantity">تعدادی (چند عدد مشابه)</mat-option>
-        </mat-select>
-      </mat-form-field>
       @if (!data.product) {
         <mat-form-field><mat-label>موجودی اولیه</mat-label><input matInput [(ngModel)]="initialStock" inputmode="numeric" dir="ltr"></mat-form-field>
       }
@@ -75,7 +68,6 @@ export class ProductDialog {
   weight = this.p ? String(this.p.weightGrams) : '';
   wage = this.p ? String(this.p.wagePercent) : '';
   stone = this.p ? String(this.p.stoneValue) : '0';
-  tracking: TrackingMode = this.p?.trackingMode ?? 'Unique';
   initialStock = '1';
   notes = this.p?.notes ?? '';
 
@@ -88,7 +80,7 @@ export class ProductDialog {
 
     const body = {
       sku: this.sku, name: this.name, category: this.category, purity: this.purity, weightGrams, wagePercent, stoneValue,
-      trackingMode: this.tracking, notes: this.notes, initialStock,
+      notes: this.notes, initialStock,
     };
     this.busy.set(true); this.error.set('');
     try {

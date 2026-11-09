@@ -117,7 +117,7 @@ public static class SalesEndpoints
 
     private static object Preview(ImportBatch b)
     {
-        var meta = JsonSerializer.Deserialize<ImportMeta>(b.MappingJson, Json)!;
+        var meta = ImportMeta.Read(b.MappingJson, Json);
         return new
         {
             b.Id, b.FileName, status = b.Status.ToString(), b.TotalRows, b.ErrorRows, b.CreatedCount, b.UpdatedCount, b.SkippedCount,

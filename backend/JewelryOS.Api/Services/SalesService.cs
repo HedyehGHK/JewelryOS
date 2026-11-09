@@ -20,9 +20,7 @@ public static class Inventory
         var now = DateTime.UtcNow;
 
         var affected = await db.Products
-            .Where(p => p.Id == productId
-                        && p.StockQuantity + change >= 0
-                        && (p.TrackingMode == TrackingMode.Quantity || p.StockQuantity + change <= 1))
+            .Where(p => p.Id == productId && p.StockQuantity + change >= 0)
             .ExecuteUpdateAsync(s => s
                 .SetProperty(p => p.StockQuantity, p => p.StockQuantity + change)
                 .SetProperty(p => p.UpdatedAt, now), ct);
@@ -31,9 +29,7 @@ public static class Inventory
         {
             var exists = await db.Products.AnyAsync(p => p.Id == productId, ct);
             if (!exists) throw new AppException("کالا پیدا نشد.", 404);
-            throw new AppException(change < 0
-                ? "موجودی کافی نیست؛ ممکن است این کالا همین الان فروخته شده باشد."
-                : "کالای تکی نمی‌تواند بیش از ۱ عدد موجودی داشته باشد.", 409);
+            throw new AppException("موجودی کافی نیست؛ ممکن است این کالا همین الان فروخته شده باشد.", 409);
         }
 
         var balance = await db.Products.Where(p => p.Id == productId).Select(p => p.StockQuantity).SingleAsync(ct);
@@ -181,7 +177,6 @@ public class SalesService(AppDb db)
             if (!byId.TryGetValue(l.ProductId, out var p)) throw new AppException("کالا پیدا نشد.", 404);
             if (p.Status != ProductStatus.Active) throw new AppException($"کالای {p.Sku} بایگانی شده است.");
             if (l.Quantity < 1) throw new AppException("تعداد باید حداقل ۱ باشد.");
-            if (p.TrackingMode == TrackingMode.Unique && l.Quantity != 1) throw new AppException($"کالای {p.Sku} تکی است.");
             if (p.StockQuantity < l.Quantity) throw new AppException($"موجودی کالای {p.Sku} کافی نیست.", 409);
 
             var wage = p.WagePercent;

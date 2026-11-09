@@ -32,7 +32,7 @@ public static class ReportEndpoints
                 .ToListAsync();
 
             var products = await db.Products.AsNoTracking().Where(p => p.Status == ProductStatus.Active)
-                .Select(p => new { p.Id, p.Sku, p.Name, p.Category, p.StockQuantity, p.WeightGrams, p.Purity, p.TrackingMode }).ToListAsync();
+                .Select(p => new { p.Id, p.Sku, p.Name, p.Category, p.StockQuantity, p.WeightGrams, p.Purity }).ToListAsync();
 
             var rate = await db.PriceRates.AsNoTracking().OrderByDescending(r => r.EffectiveAt).ThenByDescending(r => r.Id).FirstOrDefaultAsync();
             var today = invoices.Where(i => i.CreatedAt >= todayStartUtc).ToList();
@@ -62,8 +62,9 @@ public static class ReportEndpoints
                 stockByCategory = products.GroupBy(p => p.Category == "" ? "بدون دسته" : p.Category)
                     .Select(g => new { category = g.Key, pieces = g.Sum(x => x.StockQuantity), grams = Math.Round(g.Sum(x => x.WeightGrams * x.StockQuantity), 3) })
                     .OrderByDescending(x => x.pieces),
-                lowStock = products.Where(p => p.TrackingMode == TrackingMode.Quantity && p.StockQuantity <= settings.LowStockThreshold)
-                    .OrderBy(p => p.StockQuantity).Take(20),
+                lowStock = products.Where(p => p.StockQuantity <= settings.LowStockThreshold)
+                    .OrderBy(p => p.StockQuantity).ThenBy(p => p.Sku).Take(20)
+                    .Select(p => new { p.Id, p.Sku, p.Name, p.StockQuantity }),
             });
         }).RequireAuthorization();
 

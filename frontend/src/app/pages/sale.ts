@@ -68,9 +68,9 @@ interface CartLine { product: Product; quantity: number; wageText: string; }
                       <td><b>{{ l.product.name }}</b><div class="muted small num">{{ l.product.sku }} · عیار {{ l.product.purity | faNum }}</div></td>
                       <td class="num">{{ l.product.weightGrams | faNum }}</td>
                       <td>
-                        @if (l.product.trackingMode === 'Quantity') {
+                        @if (l.product.stockQuantity > 1) {
                           <input class="mini" type="number" min="1" [max]="l.product.stockQuantity" [ngModel]="l.quantity" (ngModelChange)="setQty(i, $event)">
-                        } @else { ۱ }
+                        } @else { <span class="num">{{ l.quantity | faNum }}</span> }
                       </td>
                       <td>
                         @if (auth.isOwner()) {
